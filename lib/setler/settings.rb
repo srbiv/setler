@@ -2,10 +2,10 @@ module Setler
   class Settings < ActiveRecord::Base
     serialize :value
     self.abstract_class = true
-    
+
     cattr_accessor :defaults
     @@defaults = {}.with_indifferent_access
-    
+
     # Get and Set variables when the calling method is the variable name
     def self.method_missing(method, *args, &block)
       if respond_to?(method)
@@ -34,7 +34,7 @@ module Setler
         var.to_s,
         @object.try(:class).try(:base_class).try(:to_s),
         @object.try(:id)
-      ).update_attribute(:value, value)
+      ).update_attributes({ :value => value })
     end
 
     def self.destroy(var_name)
@@ -46,15 +46,14 @@ module Setler
         raise SettingNotFound, "Setting variable \"#{var_name}\" not found"
       end
     end
-    
+
     def self.all
       @@defaults.merge(Hash[thing_scoped.all.collect{ |s| [s.var, s.value] }])
     end
-    
+
     def self.thing_scoped
       self.where(thing_type: nil, thing_id: nil)
     end
-    
+
   end
-  
 end
